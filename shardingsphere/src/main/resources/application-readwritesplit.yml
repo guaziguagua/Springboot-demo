@@ -1,0 +1,60 @@
+server:
+  port: 6770
+
+
+
+spring:
+  shardingsphere:
+    # 数据源配置
+    datasource:
+      # 数据源名称，多数据源以逗号分隔 ,放在第一个的数据源为未配置分片规则表的默认数据源
+      names: master , slave1 , slave2
+      master:
+        # 数据库连接池类名称
+        type: com.zaxxer.hikari.HikariDataSource
+        # 数据库驱动类名
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://107.174.90.8:3306/db_user?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+        username: root
+        password: 123456
+      slave1:
+        # 数据库连接池类名称
+        type: com.zaxxer.hikari.HikariDataSource
+        # 数据库驱动类名
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://107.174.90.8:3307/db_user?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+        username: root
+        password: 123456
+      slave2:
+        # 数据库连接池类名称
+        type: com.zaxxer.hikari.HikariDataSource
+        # 数据库驱动类名
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://107.174.90.8:3308/db_user?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+        username: root
+        password: 123456
+
+    # 规则配置
+    rules:
+      readwrite-splitting:
+        load-balancers:
+          alg_round:
+            type: ROUND_ROBIN #这个是轮询算法
+#          alg_random:
+#            type: RANDOM
+        data-sources:
+          myds:
+            props:
+              write-data-source-name: master
+              read-data-source-names: slave1,slave2
+              load-balancer-name: alg_round
+            # # 读写分离类型，如: Static，Dynamic 静态是卸载里面的，数据源写在properties里的
+            type: Static
+    # 属性配置，打印sql
+    props:
+      sql-show=true:
+      # 展示修改以后的sql语句
+      sql-show: true
+    # 内存模式
+    mode:
+      type: Memory
